@@ -19,7 +19,7 @@
 #if __has_include ("config.h")
   #include "config.h"
 #else 
-  #warning config.h not found.
+  #error config.h not found.
 #endif
 
 // Definieren Sie die Bildschirmabmessungen für Ihr OLED-Display
