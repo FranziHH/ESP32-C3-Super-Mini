@@ -1,3 +1,4 @@
+/* Rename This File to config.h */
 
 // Geben Sie hier Ihre WLAN-Zugangsdaten ein
 char wifissid[] = "FRITZ!Box 7490"; // ERSETZEN SIE DIES DURCH IHREN WLAN-NAMEN
