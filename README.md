@@ -9,18 +9,33 @@ Deshalb habe ich den Sketch lauffähig hier zur Verfügung gestellt.
 Am Einfachsten ist es, mit vsCode + PlatformIO zu nutzen.
 Funktioniert auch in der Arduino IDE  - ist aber umständlicher.
 
+
+#### Mein Test Aufbau
+
+<img src="/images/IMG_20251127_103856.jpg" height="400px" title="Test Aufbau 1"> 
+
+<img src="/images/IMG_20251127_103928.jpg" height="400px" title="Test Aufbau 2"> 
+
+
 ## Original Anleitung (YouTube) und Sketch
 
-[WLAN Empfang am ESP32 C3 super mini mit einfacher Modifikation verbessern, Tips zur Optimierung.](https://www.youtube.com/watch?v=LwBawTlJZ4s)
+[YouTube: WLAN Empfang am ESP32 C3 super mini mit einfacher Modifikation verbessern, Tips zur Optimierung.](https://www.youtube.com/watch?v=LwBawTlJZ4s)
 
-[Sketch WLAN Test](https://goesenswelt.de/wlan/)
+[Homepage: Sketch WLAN Test](https://goesenswelt.de/wlan/)
 
 ## Probleme mit WiFi
 
 Es gibt einige Boards, bei denen das WiFi gar nicht funktioniert.
 Hier gibt es einen Lösungsansatz.
 
-[Keine WLAN-Verbindung mit ESP32-C3 Super Mini](https://forum.arduino.cc/t/no-wifi-connect-with-esp32-c3-super-mini/1324046/22)
+[Arduino Forum: Keine WLAN-Verbindung mit ESP32-C3 Super Mini](https://forum.arduino.cc/t/no-wifi-connect-with-esp32-c3-super-mini/1324046/22)
+
+
+##### Das Wichtigste:
+Die Antenne so weit wie möglich an den Rand des Boards verschieben.
+Sie kann ruhig überstehen. Die Antenne sollte nur sicher angelötet sein.
+
+Einige User haben die Antenne mit kurzen Drähten nach Außen verlagert.
 
 
 ## Serial Port
@@ -41,6 +56,13 @@ Auch das Flashen der Firmware ist über diesen Anschluss möglich
 [AZ-Delivery: USB auf Seriell Adapter mit CH340](https://www.az-delivery.de/products/usb-auf-seriell-adapter-mit-ch340)
 
 <img src="/images/IMG_20250510_152911.png" height="400px" title="USB auf Seriell Adapter"> 
+
+#### Gehäuse für diesen Adapter
+
+[Thingiverse: Gehäuse](https://www.thingiverse.com/thing:7034979)
+
+<img src="/images/IMG_20250510_152911.jpg" height="400px" title="Gehäuse"> 
+
 
 #### Produktbilder vom Verkäufer
 
