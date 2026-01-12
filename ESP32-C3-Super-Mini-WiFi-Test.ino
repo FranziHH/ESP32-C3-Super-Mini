@@ -31,6 +31,8 @@
 // Wenn Ihr Display keinen dedizierten Reset-Pin hat, setzen Sie ihn auf -1.
 #define OLED_RESET -1 // Reset-Pin (oder -1, wenn kein Reset-Pin verwendet wird)
 
+#define OLED_I2C 0x3C
+
 // Erstellen Sie ein Adafruit_SSD1306 Display-Objekt
 // Parameter: (Breite, Höhe, I2C-Bus-Referenz, Reset-Pin)
 // Der ESP32-C3 hat nur einen I2C-Bus, daher verwenden wir ‚&Wire‘.
@@ -42,36 +44,49 @@ int signal_percent[] = {0, 0, 0, 0, 0, 0, 4, 6, 8, 11, 13, 15, 17, 19, 21, 23, 2
 int strength = 0;
 int percentage = 0;
 
+bool displayFound = false;
+
+bool devicePresent(uint8_t address) {
+  Wire.beginTransmission(address);
+  return (Wire.endTransmission() == 0);
+}
+
 void setup()
 {
-  Serial.begin(115200);
-  Serial.println("ESP32C3 WiFi Signal Strength Checker");
+  Wire.begin();
 
-  // Initialisieren des Displays
-  // Der Parameter SSD1306_SWITCHCAPVCC ist für Displays, die eine interne
-  // Ladungspumpe zur Erzeugung der benötigten 3,3V verwenden.
-  // 0x3C ist die Standard-I2C-Adresse für die meisten SSD1306-Displays.
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
-  {
-    Serial.println(F("SSD1306 Initialisierung fehlgeschlagen!"));
-    for (;;)
-      ; // Endlosschleife, wenn Display nicht gefunden wird
+  Serial.begin(115200);
+  Serial.println("ESP32 WiFi Signal Strength Checker");
+
+  if (devicePresent(OLED_I2C)) {
+    Serial.println("I2C-Gerät gefunden. Initialisiere Display...");
+    Serial.printf("I2C-Gerät auf Adresse 0x%02X gefunden. Initialisiere Display...\n", OLED_I2C);
+
+    if (display.begin(SSD1306_SWITCHCAPVCC, OLED_I2C)) {
+      displayFound = true;
+      Serial.println("Display erfolgreich initialisiert.");
+    }
+  }
+  if (!displayFound) {
+    Serial.println("Kein Display gefunden.");
   }
 
-  // Löschen des Puffers und Anzeigen des Adafruit-Logos (optional)
-  display.display();
-  delay(2000); // Zeigt das Logo für 2 Sekunden
-  display.clearDisplay();
+  if (displayFound) {
+    // Löschen des Puffers und Anzeigen des Adafruit-Logos (optional)
+    display.display();
+    delay(2000); // Zeigt das Logo für 2 Sekunden
+    display.clearDisplay();
 
-  // Setzen der Textgröße und -farbe
-  display.setTextSize(1);              // 1 = Standardgröße, 2 = doppelte Größe, etc.
-  display.setTextColor(SSD1306_WHITE); // Textfarbe (weiß auf schwarzem Hintergrund)
+    // Setzen der Textgröße und -farbe
+    display.setTextSize(1);              // 1 = Standardgröße, 2 = doppelte Größe, etc.
+    display.setTextColor(SSD1306_WHITE); // Textfarbe (weiß auf schwarzem Hintergrund)
 
-  // Die Adafruit GFX Library hat keine direkte ‚flipScreenVertically()‘ oder ’setTextAlignment()‘.
-  // ’setRotation()‘ kann verwendet werden, um die Ausrichtung zu ändern.
-  // 0 = keine Rotation, 1 = 90 Grad, 2 = 180 Grad, 3 = 270 Grad.
-  // Eine Rotation von 2 ist oft das Äquivalent zum vertikalen Flip für 128×64 Displays.
-  display.setRotation(0); // Passen Sie dies an Ihre Display-Ausrichtung an
+    // Die Adafruit GFX Library hat keine direkte ‚flipScreenVertically()‘ oder ’setTextAlignment()‘.
+    // ’setRotation()‘ kann verwendet werden, um die Ausrichtung zu ändern.
+    // 0 = keine Rotation, 1 = 90 Grad, 2 = 180 Grad, 3 = 270 Grad.
+    // Eine Rotation von 2 ist oft das Äquivalent zum vertikalen Flip für 128×64 Displays.
+    display.setRotation(0); // Passen Sie dies an Ihre Display-Ausrichtung an
+  }
 
   // Set WiFi to Station Mode
   WiFi.mode(WIFI_STA);
@@ -85,14 +100,17 @@ void setup()
   #endif
   Serial.print("Connecting to WiFi...");
 
-  // Manuelles Zentrieren des Textes für das Display
-  String connectingText = "Connecting to WiFi...";
   int16_t x1, y1;
   uint16_t w, h;
-  display.getTextBounds(connectingText, 0, 0, &x1, &y1, &w, &h);
-  display.setCursor((SCREEN_WIDTH - w) / 2, 15);
-  display.print(connectingText);
-  display.display();
+
+  if (displayFound) {
+    // Manuelles Zentrieren des Textes für das Display
+    String connectingText = "Connecting to WiFi...";
+    display.getTextBounds(connectingText, 0, 0, &x1, &y1, &w, &h);
+    display.setCursor((SCREEN_WIDTH - w) / 2, 15);
+    display.print(connectingText);
+    display.display();
+  }
 
   // Check if connected to WiFi
   while (WiFi.status() != WL_CONNECTED)
@@ -100,13 +118,16 @@ void setup()
     delay(500);
     Serial.print(".");
   }
-  // Print connection information
-  display.clearDisplay();
-  String connectedText = "Connected to " + String(wifissid);
-  display.getTextBounds(connectedText, 0, 0, &x1, &y1, &w, &h);
-  display.setCursor((SCREEN_WIDTH - w) / 2, 15);
-  display.print(connectedText);
-  display.display();
+
+  if (displayFound) {
+    // Print connection information
+    display.clearDisplay();
+    String connectedText = "Connected to " + String(wifissid);
+    display.getTextBounds(connectedText, 0, 0, &x1, &y1, &w, &h);
+    display.setCursor((SCREEN_WIDTH - w) / 2, 15);
+    display.print(connectedText);
+    display.display();
+  }
 
   Serial.print("\nConnected to: ");
   Serial.println(wifissid);
@@ -120,20 +141,24 @@ void loop()
   // While checking for signal strength, check if ESP got disconnected
   if (WiFi.status() != WL_CONNECTED)
   {
-    display.clearDisplay();
-    String connectionLostText = "Connection lost";
-    int16_t x1, y1;
-    uint16_t w, h;
-    display.getTextBounds(connectionLostText, 0, 0, &x1, &y1, &w, &h);
-    display.setCursor((SCREEN_WIDTH - w) / 2, 15);
-    display.print(connectionLostText);
-    display.display();
-    delay(1000);
+    if (displayFound) {
+      display.clearDisplay();
+      String connectionLostText = "Connection lost";
+      int16_t x1, y1;
+      uint16_t w, h;
+      display.getTextBounds(connectionLostText, 0, 0, &x1, &y1, &w, &h);
+      display.setCursor((SCREEN_WIDTH - w) / 2, 15);
+      display.print(connectionLostText);
+      display.display();
+      delay(1000);
+    }
   }
   // Get signal strength if ESP is connected to WiFi
   else if (WiFi.status() == WL_CONNECTED)
   {
-    display.clearDisplay();
+    if (displayFound) {
+      display.clearDisplay();
+    }
     Serial.println(" ");
     Serial.print("WiFi Signal Strength - ");
     // Print the received signal strength in dBm
@@ -155,8 +180,10 @@ void loop()
         break;
       }
     }
-    drawProgressBar();
-    display.display();
+    if (displayFound) {
+      drawProgressBar();
+      display.display();
+    }
     delay(1000);
   }
 }
